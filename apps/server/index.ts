@@ -3,16 +3,14 @@ import cors from "cors"
 import bodyParser from "body-parser"
 import Database from "bun:sqlite"
 import { Action, Status, serverLog } from "utils"
-import { setupJobTable, setupPRTable } from "./database"
+import { setupJobTable} from "./database"
 
 // ------------------- DATABASE SETUP ------------------
 
 const DB = new Database(Bun.env.DB_FILENAME, { create: true })
 const JOB_TABLE = Bun.env.DB_JOB_TABLE as string
-const PR_TABLE = Bun.env.DB_PR_TABLE as string
 
 setupJobTable(DB, JOB_TABLE) // Setup the table immediately after its definition
-setupPRTable(DB, PR_TABLE) // Setup the table immediately after its definition
 
 // -------------------- SERVER SETUP --------------------
 
