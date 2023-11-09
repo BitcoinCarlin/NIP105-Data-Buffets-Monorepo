@@ -21,6 +21,7 @@ export interface JobEntry {
   paid: boolean
   state: JobState
   message: string
+  tries: number
   createdTimestamp: number
   paidTimestamp: number
   lastUpdatedTimestamp: number
@@ -53,9 +54,10 @@ export function setupJobTable(db: Database, table: string) {
         paid INTEGER,
         state TEXT,
         message TEXT,
+        tries INTEGER,
         createdTimestamp INTEGER,
         paidTimestamp INTEGER,
-        lastUpdatedTimestamp INTEGER,
+        lastUpdatedTimestamp INTEGER
       );
     `
     db.query(createTableQuery).run()
@@ -78,7 +80,7 @@ export function setupJobTable(db: Database, table: string) {
     return jobEntry[0] as JobEntry;
   }
 
-  export function createJobEntry(db: Database, table: string, service: string, price: number, invoice: Invoice, requestBody: any) {
+  export function createJobEntry(db: Database, table: string, service: string, price: number, tries: number, invoice: Invoice, requestBody: any) {
 
     return createJobEntryRaw(db, table, {
       paymentHash: invoice.paymentHash,
@@ -92,6 +94,7 @@ export function setupJobTable(db: Database, table: string) {
       paid: false,
       state: JobState.UNPAID,
       message: '',
+      tries,
       createdTimestamp: Date.now(),
       paidTimestamp: 0,
       lastUpdatedTimestamp: Date.now(),
@@ -115,6 +118,7 @@ export function setupJobTable(db: Database, table: string) {
         paid,
         state,
         message,
+        tries,
         createdTimestamp,
         paidTimestamp,
         lastUpdatedTimestamp
@@ -130,6 +134,7 @@ export function setupJobTable(db: Database, table: string) {
         :paid,
         :state,
         :message,
+        :tries,
         :createdTimestamp,
         :paidTimestamp,
         :lastUpdatedTimestamp
@@ -146,9 +151,10 @@ export function setupJobTable(db: Database, table: string) {
       requestJSON: job.requestJSON,
       responseJSON: job.responseJSON,
       assetFilepath: job.assetFilepath,
-      paid: job.paid,
+      paid: job.paid ? 1 : 0,
       state: job.state,
       message: job.message,
+      tries: job.tries,
       createdTimestamp: job.createdTimestamp,
       paidTimestamp: job.paidTimestamp,
       lastUpdatedTimestamp: job.lastUpdatedTimestamp,
@@ -214,12 +220,16 @@ export function setupJobTable(db: Database, table: string) {
   export function markError(db: Database, table: string, paymentHash: string, errorMessage: string) {
     checkIfIsTableOk(table);
   
+    const jobEntry = getJobEntry(db, table, paymentHash);
+    if(jobEntry.tries <= 0) return;
+
     // Prepare the SQL query to update the job entry's state to ERROR and set the error message
     const markErrorQuery = `
       UPDATE ${table}
       SET
         message = :message,
         state = :state,
+        tries = tries - 1,
         lastUpdatedTimestamp = :lastUpdatedTimestamp
       WHERE paymentHash = :paymentHash;
     `;

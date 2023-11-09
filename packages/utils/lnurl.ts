@@ -98,7 +98,6 @@ export async function getInvoice(
   lud16: string,
   msats: number,
   expiration: Date = new Date(Date.now() + 1000 * 60 * 60 * 3), // 3 hours 
-  successAction?: PaymentRequestSuccessAction,
 ): Promise<Invoice> {
   const lud16Url = getLud16Url(lud16);
 
@@ -134,13 +133,7 @@ export async function getInvoice(
     },
   });
   
-  let paymentRequest = await paymentRequestResponse.json() as PaymentRequest;
-  if(successAction) {
-    paymentRequest = {
-      ...paymentRequest,
-      successAction,
-    }
-  }
+  const paymentRequest = await paymentRequestResponse.json() as PaymentRequest;
 
   if (paymentRequest.status !== "OK") {
     throw new Error(`Error getting payment request: ${paymentRequest.reason}`);

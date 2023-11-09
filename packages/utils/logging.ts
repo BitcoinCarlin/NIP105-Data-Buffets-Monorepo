@@ -2,7 +2,8 @@ export enum Action {
     SERVER = 'SERVER',
     CREATE = 'CREATE',
     GET_INVOICE = 'INVOICE',
-    GET_RESULT = 'RESULT'
+    GET_RESULT = 'RESULT',
+    CHECK_PAYMENT = 'PAYMENT'
 }
 
 export enum Status {
