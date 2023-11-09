@@ -154,3 +154,5 @@ export async function checkPaid(
   const verifyRequest = await fetch(paymentRequest.verify);
   return (await verifyRequest.json()) as VerifyPaymentRequest;
 }
+
+
