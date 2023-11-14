@@ -1,21 +1,54 @@
+import { Event as NostrEvent} from 'nostr-tools';
 import { NIP105Service } from "../services";
+import { OfferingStatus, createUnsignedServiceEvent } from 'nip105';
 
-const service = "chatGPT";
+const API_KEY = (Bun.env.CHAT_GPT_API_KEY) as string;
+const ENDPOINT = "https://api.openai.com/v1/chat/completions";
+const SERVICE = "chatGPT";
+
+function createServiceEvent(serverEndpoint: string): NostrEvent {
+
+    return createUnsignedServiceEvent(
+        {
+            endpoint: serverEndpoint + "/" + SERVICE,
+            status: OfferingStatus.up,
+            fixedCost: 1000,
+            variableCost: 0,
+            costUnits: 0
+        },
+        ENDPOINT
+    )
+}
 
 function getPrice(requestBody: any): number {
+
     return 1000;
 }
 
 function validate(requestBody: any): void {
+
     return;
 }
 
-function process(requestBody: any): [number, any] {
-    return [202, {message: "Hello World"}];
+async function process(requestBody: any): Promise<[number, any]> {
+
+    // requestBody.question -> ChatGPT What it's expecting
+
+    const response = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify(requestBody)
+    })
+
+    return [200, await response.json()];
 }
 
-export const chatGPT: NIP105Service  = {
-    service,
+export const chatGPT: NIP105Service = {
+    service: SERVICE,
+    createServiceEvent,
     getPrice,
     validate,
     process,
