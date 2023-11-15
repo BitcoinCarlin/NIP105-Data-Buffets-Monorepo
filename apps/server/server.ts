@@ -73,7 +73,7 @@ export async function getServiceResult(
   table: string
 ) {
   try {
-    serverLog(Action.GET_RESULT, Status.INFO, "Fetching request for invoice");
+    serverLog(Action.GET_RESULT, Status.INFO, "Fetching results");
 
     const jobEntry = getJobEntry(database, table, request.params.payment_hash);
 
