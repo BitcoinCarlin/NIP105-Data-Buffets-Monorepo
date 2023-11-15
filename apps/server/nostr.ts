@@ -1,4 +1,4 @@
-import { SimplePool, Event as NostrEvent, generatePrivateKey } from "nostr-tools";
+import { SimplePool, Event as NostrEvent, generatePrivateKey, finishEvent } from "nostr-tools";
 
 
 
@@ -14,6 +14,17 @@ export async function getPrivateKey(privateKeyPath: string): Promise<string>{
     return privateKey;
 }
 
-export async function postServices(pool: SimplePool, relays: string[], events: NostrEvent[]): Promise<void> {
-    // console.log(events);
+export async function postServices(pool: SimplePool, privateKey: string, relays: string[], events: NostrEvent[], debug: boolean = false): Promise<void> {
+
+    for(const event of events){
+
+        // If debug is true, add the `debug` tag to sort out
+        event.tags = [
+            ...event.tags,
+            (debug ? ['t', 'DEBUG'] : []),
+        ];
+
+        const signedEvent = finishEvent(event, privateKey);
+        await pool.publish(relays, signedEvent);
+    }
 }

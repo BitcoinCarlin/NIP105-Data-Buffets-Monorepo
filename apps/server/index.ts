@@ -16,6 +16,7 @@ import {
   NIP105Service,
   getAllServiceEvents,
 } from "./services";
+import { sleep } from "bun";
 import { getPrivateKey, postServices } from "./nostr";
 import { checkServicePayment, getServiceInvoice, getServiceResult } from "./server";
 
@@ -81,12 +82,25 @@ APP.listen(SERVER_PORT, () => {
 //TODO UPDATE Periodically
 
 const RELAYS = [
-  ''
+  'wss://dev.nostrplayground.com'
 ];
 const POOL = new SimplePool()
-const EVENTS = await getAllServiceEvents(SERVICES, SERVER_URL);
 const PRIVATE_KEY_FILEPATH = (Bun.env.PRIVATE_KEY_FILEPATH) as string;
 const PRIVATE_KEY = await getPrivateKey(PRIVATE_KEY_FILEPATH);
 
-//TODO loop this periodically
-postServices(POOL, RELAYS, EVENTS);
+// --------------------- NOSTR LOOP --------------------------
+async function updateServices() {
+  while(true) {
+    try {
+      const allEvents = await getAllServiceEvents(SERVICES, SERVER_URL);
+      await postServices(POOL, PRIVATE_KEY, RELAYS, allEvents);
+      serverLog(Action.SERVER, Status.INFO, `Posted ${allEvents.length} services to ${RELAYS.length} Nostr relay(s)`);
+      await sleep(1000 * 60 * 10); // Every 10 minutes
+    } catch (error) {
+      serverLog(Action.SERVER, Status.ERROR, `Error posting to Nostr: ${error}`);
+    }
+
+  }
+}
+
+updateServices()
