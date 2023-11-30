@@ -52,3 +52,10 @@ export function getOffering(note: NostrEvent<31402>): OfferingContent | null {
     return null;
   }
 }
+
+export function getTagValue(note: NostrEvent<31402>, tagName: string): string | null {
+
+    const tagArray = note.tags.find(tag => tag[0] === tagName);
+    if(!tagArray) return null;
+    return tagArray[1];
+  }

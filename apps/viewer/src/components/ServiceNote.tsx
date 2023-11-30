@@ -24,6 +24,7 @@ export function ServiceNote(props: ServiceNoteProps) {
         <p className="text-xs mb-5">Variable Cost: {offering.variableCost}</p>
         <p className="text-xs mb-5">Cost Units: {offering.costUnits}</p>
         <h3 className="break-words">{note.content}</h3>
+        <h3 className="break-words">{note.tags}</h3>
       </div>
     </div>
   );

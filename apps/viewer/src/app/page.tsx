@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { SimplePool, Event as NostrEvent } from 'nostr-tools';
 import { WebLNProvider, requestProvider } from 'webln';
 import { ServiceNote } from '@/components/ServiceNote';
+import { getTagValue } from '@/controllers/nip-105';
 
 const RELAYS = [
   'wss://dev.nostrplayground.com'
@@ -15,7 +16,7 @@ export default function Home() {
   const [nostr, setNostr] = useState<any | null>(null);
   const [webln, setWebln] = useState<null | WebLNProvider>(null);
   const [publicKey, setPublicKey] = useState<string | null>(null);
-  const [rawNotes, setRawNotes] = useState<NostrEvent<31402>[]>([]);
+  const [rawNotes, setRawNotes] = useState<{ [key: string]: NostrEvent<31402> }>({});
 
   // ------------------- EFFECTS -------------------------
 
@@ -47,7 +48,16 @@ export default function Home() {
     ]);
 
     sub.on('event', (note) => {
-      setRawNotes((notes) => [...notes, note]);
+
+      const dTag = getTagValue(note, 'd');
+      if(!dTag) return;
+
+      setRawNotes((oldNotes)=>{
+        return {
+          ...oldNotes,
+          [note.pubkey + dTag]: note
+        }
+      })
     });
 
     return () => {
@@ -57,15 +67,20 @@ export default function Home() {
   }, [])
 
   const renderNotes = () => {
-
-    if(!rawNotes.length) {
-      return <p>No Notes</p>
+    // Convert the rawNotes object into an array of its values
+    const notesArray = Object.values(rawNotes);
+  
+    // Check if the array is empty
+    if (notesArray.length === 0) {
+      return <p>No Notes</p>;
     }
-
-    return <div className="w-full mt-4">
-      {rawNotes.map((note)=> <ServiceNote note={note}/>)}
-    </div>
-
+  
+    // Render the array of notes
+    return (
+      <div className="w-full mt-4">
+        {notesArray.map((note) => <ServiceNote note={note} key={note.id} />)}
+      </div>
+    );
   }
 
 
@@ -75,3 +90,5 @@ export default function Home() {
     </main>
   )
 }
+
+
