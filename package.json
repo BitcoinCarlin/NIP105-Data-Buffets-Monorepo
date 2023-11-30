@@ -4,7 +4,7 @@
   "scripts": {
     "nip105-server": "bun run apps/server/index.ts",
     "nip105-server-test": "bun run apps/server/test.ts",
-    "nip105-viewer": "cd apps/viewer && bun run dev"
+    "nip105-viewer": "cd apps/viewer && bun run dev -p 3003"
   },
   "devDependencies": {
     "bun-types": "latest"
