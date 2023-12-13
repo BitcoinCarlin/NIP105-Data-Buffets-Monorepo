@@ -84,12 +84,12 @@ export function getOffering(note: NostrEvent<31402>): OfferingContent | null {
       return null;
     }
 
-    // if (
-    //   content.endpoint.includes("127.0.0.1") ||
-    //   content.endpoint.includes("localhost")
-    // ) {
-    //   return null;
-    // }
+    if (
+      content.endpoint.includes("127.0.0.1") ||
+      content.endpoint.includes("localhost")
+    ) {
+      return null;
+    }
 
     return content;
   } catch (e) {
