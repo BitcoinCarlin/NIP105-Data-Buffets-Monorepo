@@ -13,6 +13,10 @@ const MODELS = [
   'sdxl'
 ];
 
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export function ServiceFieldStableDiffusion(props: ServiceFieldStableDiffusionProps) {
   const { offering } = props;
   const [input, setInput] = useState("");
@@ -63,7 +67,7 @@ export function ServiceFieldStableDiffusion(props: ServiceFieldStableDiffusionPr
       }
 
       const paymentRequest = await webln.sendPayment(invoice.paymentRequest.pr);
-      let checkCount = 5;
+      let checkCount = 50;
       while(checkCount--) {
       
         console.log("Checking for result");
@@ -85,6 +89,8 @@ export function ServiceFieldStableDiffusion(props: ServiceFieldStableDiffusionPr
               });
 
               break;
+          } else {
+            await sleep(2000)
           }
       }
 

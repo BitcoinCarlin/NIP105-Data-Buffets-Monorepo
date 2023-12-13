@@ -5,7 +5,7 @@
     "nip105-server": "bun run apps/server/index.ts",
     "nip105-test-gpt": "bun run apps/server/tests/testChatGPT.ts",
     "nip105-test-sd": "bun run apps/server/tests/testStableDiffusion.ts",
-    "nip105-viewer": "cd apps/viewer && bun run dev -p 3005"
+    "nip105-viewer": "cd apps/viewer && bun run dev -p 3003"
   },
   "devDependencies": {
     "bun-types": "latest"
