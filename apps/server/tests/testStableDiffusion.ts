@@ -2,20 +2,15 @@ import { sleep } from "bun";
 import { Invoice } from "utils";
 
 const serverUrl = (Bun.env.SERVER_URL as string);
-const service = "chatGPT";
+const service = "SD";
 
-const question = (await prompt("Question: ")) as string;
+const question = (await prompt("Prompt: ")) as string;
 if(!question) throw new Error("No question entered");
 
 const requestBody = {
-    model: "gpt-3.5-turbo",
-    messages: [
-      {
-        role: "user",
-        content: question
-      },
-    ],
-  };
+    prompt: question,
+    model_id: "anything-v3"
+};
 
 const request = await fetch(`${serverUrl}/${service}`, {
     method: 'POST',
@@ -40,10 +35,13 @@ while(!done) {
         },
     });
 
-    if(result.status === 200) {
+    if(result.status === 500) {
         const resultResponse = await result.json();
-        console.log(`\nQuestion: ${question}\n`)
-        console.log(`\nAnswer: ${(resultResponse as any).choices[0].message.content}\n`);
+        console.log(resultResponse);
+        done = true;
+    } else if(result.status === 200) {
+        const resultResponse = await result.json() as any;
+        console.log(resultResponse.output[0])
         done = true;
     } else {
         console.log("Response code: ", result.status);

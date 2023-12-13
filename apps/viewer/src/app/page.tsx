@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { SimplePool, Event as NostrEvent } from 'nostr-tools';
 import { WebLNProvider, requestProvider } from 'webln';
 import { ServiceNote } from '@/components/ServiceNote';
-import { getTagValue } from '@/controllers/nip-105';
+import { getTagValue } from 'nip105';
 
 const RELAYS = [
   'wss://dev.nostrplayground.com'
@@ -41,9 +41,15 @@ export default function Home() {
     const pool = new SimplePool();
     setPool(pool);
 
+    const day = 60 * 60 * 24;
+    const yesterday = Math.floor((Date.now() / 1000)) - day
+    const tomorrow = yesterday + 2 * day;
+
     const sub = pool.sub(RELAYS, [
       {
-        kinds: [31402]
+        kinds: [31402],
+        since: yesterday,
+        until: tomorrow,
       }
     ]);
 

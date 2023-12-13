@@ -21,6 +21,7 @@ import {
   markComplete,
   markError,
   markPaid,
+  setResponse,
 } from "./database";
 import Database from "bun:sqlite";
 
@@ -89,7 +90,8 @@ export async function getServiceResult(
       case JobState.UNPAID:
         const paymentRequest = (JSON.parse(jobEntry.invoiceJSON) as Invoice)
           .paymentRequest;
-        const isPaid = await checkPaid(paymentRequest);
+        const verifyPaymentRequest = await checkPaid(paymentRequest);
+        const isPaid = verifyPaymentRequest.settled;
 
         if (!isPaid) {
           response.status(402).send({ message: "Payment not received" });
@@ -105,7 +107,8 @@ export async function getServiceResult(
     const [status, data] = await processService(
       servicesMap,
       jobEntry.service,
-      JSON.parse(jobEntry.requestJSON)
+      JSON.parse(jobEntry.requestJSON),
+      jobEntry.responseJSON ? JSON.parse(jobEntry.responseJSON) : null
     );
 
     switch (status) {
@@ -114,7 +117,7 @@ export async function getServiceResult(
           database,
           table,
           request.params.payment_hash,
-          JSON.stringify(data)
+          data
         );
         break;
       case 500:
@@ -122,10 +125,16 @@ export async function getServiceResult(
           database,
           table,
           request.params.payment_hash,
-          JSON.stringify(data)
+          data
         );
         break;
       case 202:
+        setResponse(
+          database,
+          table,
+          request.params.payment_hash,
+          data
+        );
         break; // Still working
     }
 

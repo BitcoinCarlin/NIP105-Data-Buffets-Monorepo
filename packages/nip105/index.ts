@@ -58,10 +58,10 @@ export function createUnsignedServiceEvent(
     return {
         kind: 31402,
         content: JSON.stringify(content),
-        created_at: Date.now(),
+        created_at: Math.round(Date.now() / 1000),
         tags: [
             ['s', service],
-            ['d', service]
+            ['d', content.endpoint]
         ],
         pubkey: '',
         id: '',
@@ -74,4 +74,39 @@ export function getTagValue(note: NostrEvent<31402>, tagName: string): string | 
   const tagArray = note.tags.find(tag => tag[0] === tagName);
   if(!tagArray) return null;
   return tagArray[1];
+}
+
+export function getOffering(note: NostrEvent<31402>): OfferingContent | null {
+  try {
+    const content = JSON.parse(note.content) as OfferingContent;
+
+    if (!content || !content.endpoint) {
+      return null;
+    }
+
+    // if (
+    //   content.endpoint.includes("127.0.0.1") ||
+    //   content.endpoint.includes("localhost")
+    // ) {
+    //   return null;
+    // }
+
+    return content;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+}
+
+
+//TODO Remove in favor of new service type
+export enum ServiceType {
+  chatGPT = "GPT",
+  stableDiffusion = "SD",
+  storage = "storage",
+}
+
+export function getServiceType(offering: OfferingContent): ServiceType {
+  const split = offering.endpoint.split("/")
+  return split[split.length - 1] as ServiceType;
 }

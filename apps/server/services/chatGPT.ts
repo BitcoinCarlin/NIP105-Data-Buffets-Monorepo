@@ -4,7 +4,7 @@ import { OfferingStatus, createUnsignedServiceEvent } from 'nip105';
 
 const API_KEY = (Bun.env.CHAT_GPT_API_KEY) as string;
 const ENDPOINT = "https://api.openai.com/v1/chat/completions";
-const SERVICE = "chatGPT";
+const SERVICE = "GPT";
 
 function createServiceEvent(serverEndpoint: string): NostrEvent {
 

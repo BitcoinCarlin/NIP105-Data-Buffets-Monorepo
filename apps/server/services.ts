@@ -17,7 +17,7 @@ export interface NIP105Service {
   /** Validates the request, should throw a detailed error on failure */
   validate: (requestBody: any) => Promise<void> | void;
   /** Processes the specific request, should return a status 500 | 202 | 200 */
-  process: (requestBody: any) => Promise<[number, any]> | [number, any]; //status, response
+  process: (requestBody: any, previousResponse?: any) => Promise<[number, any]> | [number, any]; //status, response
 }
 
 // -------------- FUNCTIONS --------------
@@ -82,7 +82,8 @@ export async function getPriceForService(
 export async function processService(
   servicesMap: Map<string, NIP105Service>,
   service: string,
-  requestBody: any
+  requestBody: any,
+  previousResponse: any
 ): Promise<[number, any]> {
   const serviceProvider = servicesMap.get(service);
 
@@ -91,7 +92,7 @@ export async function processService(
   }
 
   try {
-    return await serviceProvider.process(requestBody);
+    return await serviceProvider.process(requestBody, previousResponse);
   } catch (error) {
     const message = `Error processing service: ${error}`;
     return [500, { message }];

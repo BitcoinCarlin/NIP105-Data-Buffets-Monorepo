@@ -22,9 +22,11 @@ import { checkServicePayment, getServiceInvoice, getServiceResult } from "./serv
 
 // ------------------- SERVICE SETUP -------------------
 import { chatGPT } from "./services/chatGPT";
+import { stableDiffusion } from "./services/stableDiffusion";
 
 const SERVICES: NIP105Service[] = [
   chatGPT,
+  stableDiffusion,
   // Enter Services Here
 ];
 

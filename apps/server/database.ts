@@ -210,6 +210,38 @@ export function markPaid(db: Database, table: string, paymentHash: string) {
   });
 }
 
+export function setResponse(
+  db: Database,
+  table: string,
+  paymentHash: string,
+  responseBody: any
+) {
+  checkIfIsTableOk(table);
+
+  const jobEntry = getJobEntry(db, table, paymentHash);
+  if (jobEntry.state === JobState.COMPLETED) return;
+
+  // Prepare the SQL query to update the job entry as completed
+  const markCompleteQuery = `
+      UPDATE ${table}
+      SET
+        responseJSON = $responseJSON,
+        state = $state,
+        lastUpdatedTimestamp = $lastUpdatedTimestamp
+      WHERE paymentHash = $paymentHash;
+    `;
+
+  const currentTimestamp = Date.now();
+
+  // Execute the update query with the new values
+  db.query(markCompleteQuery).run({
+    $responseJSON: JSON.stringify(responseBody),
+    $state: JobState.FETCHING,
+    $lastUpdatedTimestamp: currentTimestamp,
+    $paymentHash: paymentHash,
+  });
+}
+
 export function markComplete(
   db: Database,
   table: string,

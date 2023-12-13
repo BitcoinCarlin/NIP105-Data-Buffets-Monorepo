@@ -3,15 +3,18 @@
   "private": true,
   "scripts": {
     "nip105-server": "bun run apps/server/index.ts",
-    "nip105-server-test": "bun run apps/server/test.ts",
-    "nip105-viewer": "cd apps/viewer && bun run dev -p 3003"
+    "nip105-test-gpt": "bun run apps/server/tests/testChatGPT.ts",
+    "nip105-test-sd": "bun run apps/server/tests/testStableDiffusion.ts",
+    "nip105-viewer": "cd apps/viewer && bun run dev -p 3005"
   },
   "devDependencies": {
     "bun-types": "latest"
   },
   "workspaces": [
     "packages/utils",
-    "packages/nip105"
+    "packages/nip105",
+    "apps/viewer",
+    "apps/server"
   ],
   "peerDependencies": {
     "typescript": "^5.0.0"
