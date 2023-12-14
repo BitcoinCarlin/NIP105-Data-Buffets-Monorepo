@@ -3,6 +3,7 @@
 # Custom
 
 nostr.private.key
+*.sqlite
 
 # Logs
 
