@@ -83,11 +83,10 @@ export function ServiceFieldStableDiffusion(props: ServiceFieldStableDiffusionPr
           } else if(result.status === 200) {
               const resultResponse = await result.json();
               const answer = (resultResponse as any).output[0];
-              console.log(answer);
+
               setResponses((oldResponses) => {
                 return [...oldResponses, answer];
               });
-
               break;
           } else {
             await sleep(2000)

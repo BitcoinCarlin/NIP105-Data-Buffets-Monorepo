@@ -54,7 +54,7 @@ export default function Home() {
     ]);
 
     sub.on('event', (note) => {
-
+      
       const dTag = getTagValue(note, 'd');
       if(!dTag) return;
 

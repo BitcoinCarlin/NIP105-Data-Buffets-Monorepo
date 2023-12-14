@@ -16,6 +16,7 @@ import {
 import { setNIP105SuccessAction } from "nip105";
 import {
   JobState,
+  TempFileData,
   createJobEntry,
   getJobEntry,
   markComplete,
@@ -39,6 +40,20 @@ export async function getServiceInvoice(
 
     const service = request.params.service;
     const requestBody = request.body;
+    const tempFileRaw = request?.files?.file as TempFileData | undefined;
+    let tempFile: TempFileData | undefined = tempFileRaw;
+
+    if(tempFileRaw){
+      tempFile = {
+        name: tempFileRaw?.name,
+        size: tempFileRaw?.size,
+        encoding: tempFileRaw?.encoding,
+        tempFilePath: tempFileRaw?.tempFilePath,
+        truncated: tempFileRaw?.truncated,
+        mimetype: tempFileRaw?.mimetype,
+        md5: tempFileRaw?.md5,
+      }
+    }
 
     await validateService(servicesMap, service, requestBody);
     const cost = await getPriceForService(servicesMap, service, requestBody);
@@ -51,7 +66,7 @@ export async function getServiceInvoice(
       "Paying for service"
     );
 
-    createJobEntry(database, table, service, cost, tries, invoice, requestBody);
+    createJobEntry(database, table, service, cost, tries, invoice, requestBody, tempFile);
 
     response.status(402).send(invoice);
   } catch (error) {
@@ -81,7 +96,6 @@ export async function getServiceResult(
     switch (jobEntry.state) {
       case JobState.ERROR:
         if (jobEntry.tries) break;
-
         response.status(500).send({ message: jobEntry.message });
         return;
       case JobState.COMPLETED:
@@ -107,8 +121,11 @@ export async function getServiceResult(
     const [status, data] = await processService(
       servicesMap,
       jobEntry.service,
-      JSON.parse(jobEntry.requestJSON),
-      jobEntry.responseJSON ? JSON.parse(jobEntry.responseJSON) : null
+      {
+        requestBody: JSON.parse(jobEntry.requestJSON),
+        previousResponse: jobEntry.responseJSON ? JSON.parse(jobEntry.responseJSON) : null,
+        tempFile: jobEntry.tempFileJSON ? JSON.parse(jobEntry.tempFileJSON) : null,
+      }
     );
 
     switch (status) {

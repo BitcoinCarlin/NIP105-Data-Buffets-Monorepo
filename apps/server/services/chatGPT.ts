@@ -1,5 +1,5 @@
 import { Event as NostrEvent} from 'nostr-tools';
-import { NIP105Service } from "../services";
+import { NIP105ProcessInput, NIP105Service } from "../services";
 import { OfferingStatus, createUnsignedServiceEvent } from 'nip105';
 
 const API_KEY = (Bun.env.CHAT_GPT_API_KEY) as string;
@@ -30,9 +30,8 @@ function validate(requestBody: any): void {
     return;
 }
 
-async function process(requestBody: any): Promise<[number, any]> {
-
-    // requestBody.question -> ChatGPT What it's expecting
+async function process(input: NIP105ProcessInput): Promise<[number, any]> {
+    const {requestBody} = input;
 
     const response = await fetch(ENDPOINT, {
         method: 'POST',

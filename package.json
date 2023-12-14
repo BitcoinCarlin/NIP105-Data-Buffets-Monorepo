@@ -5,7 +5,8 @@
     "nip105-server": "bun run apps/server/index.ts",
     "nip105-test-gpt": "bun run apps/server/tests/testChatGPT.ts",
     "nip105-test-sd": "bun run apps/server/tests/testStableDiffusion.ts",
-    "nip105-viewer": "cd apps/viewer && bun run dev -p 3003"
+    "nip105-test-storage": "bun run apps/server/tests/testStorage.ts",
+    "nip105-viewer": "cd apps/viewer && bun run dev"
   },
   "devDependencies": {
     "bun-types": "latest"
@@ -25,6 +26,8 @@
     "bolt11": "^1.4.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "express-fileupload": "^1.4.3",
+    "multer": "^1.4.5-lts.1",
     "nostr-tools": "^1.17.0",
     "webln": "^0.3.2"
   }

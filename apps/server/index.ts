@@ -1,8 +1,10 @@
 import express from "express";
+import fileUpload from "express-fileupload";
 import cors from "cors";
 import bodyParser from "body-parser";
 import Database from "bun:sqlite";
 import { SimplePool } from "nostr-tools";
+
 import {
   Action,
   Status,
@@ -23,10 +25,12 @@ import { checkServicePayment, getServiceInvoice, getServiceResult } from "./serv
 // ------------------- SERVICE SETUP -------------------
 import { chatGPT } from "./services/chatGPT";
 import { stableDiffusion } from "./services/stableDiffusion";
+import { byteScale } from "./services/byteScale";
 
 const SERVICES: NIP105Service[] = [
   chatGPT,
   stableDiffusion,
+  byteScale,
   // Enter Services Here
 ];
 
@@ -58,10 +62,18 @@ const SERVER_LUD16 = `${Bun.env.SERVER_LUD16 as string}`;
 
 APP.use(cors());
 APP.use(bodyParser.json());
+APP.use(fileUpload({
+  safeFileNames: true,
+  useTempFiles : true,
+  tempFileDir : '/tmp/',
+  // abortOnLimit: true,
+  // limits: { fileSize: 50 * 1024 * 1024 },
+}));
 
 // --------------------- ENDPOINTS ---------------------
 
 APP.post("/:service", async (request, response) => {
+
   getServiceInvoice(request, response, SERVICE_MAP, DB, JOB_TABLE, SERVER_LUD16, SERVER_URL);
 });
 

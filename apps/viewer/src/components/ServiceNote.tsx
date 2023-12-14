@@ -7,6 +7,7 @@ import {
   getServiceType,
 } from "nip105";
 import { ServiceFieldStableDiffusion } from "./ServiceFieldStableDiffusion";
+import { ServiceFieldStorage } from "./ServiceFieldStorage";
 
 export interface ServiceNoteProps {
   note: NostrEvent<31402>;
@@ -26,7 +27,8 @@ export function ServiceNote(props: ServiceNoteProps) {
         return <ServiceFieldChatGPT offering={offering} />;
       case ServiceType.stableDiffusion:
         return <ServiceFieldStableDiffusion offering={offering} />;
-
+      case ServiceType.storage:
+        return <ServiceFieldStorage offering={offering} />;
       default:
         return null;
     }

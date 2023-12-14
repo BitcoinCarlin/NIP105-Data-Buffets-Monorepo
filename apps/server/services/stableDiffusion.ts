@@ -1,5 +1,5 @@
 import { Event as NostrEvent} from 'nostr-tools';
-import { NIP105Service } from "../services";
+import { NIP105ProcessInput, NIP105Service } from "../services";
 import { OfferingStatus, createUnsignedServiceEvent } from 'nip105';
 
 const API_KEY = (Bun.env.SD_API_KEY) as string;
@@ -30,8 +30,10 @@ function validate(requestBody: any): void {
     return;
 }
 
-async function handleFirstResponse(requestBody: any): Promise<[number, any]> {
-    const input = {
+async function handleFirstResponse(input: NIP105ProcessInput): Promise<[number, any]> {
+    const {requestBody} = input;
+
+    const body = {
         ...requestBody,
         key: API_KEY,
     }
@@ -41,7 +43,7 @@ async function handleFirstResponse(requestBody: any): Promise<[number, any]> {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(input),
+        body: JSON.stringify(body),
         // redirect: 'follow'
     })
 
@@ -55,8 +57,10 @@ async function handleFirstResponse(requestBody: any): Promise<[number, any]> {
     return [200, responseJSON];
 }
 
-async function handlePreviousResponse(requestBody: any, previousResponse: any): Promise<[number, any]> {
-    const input = {
+async function handlePreviousResponse(input: NIP105ProcessInput): Promise<[number, any]> {
+    const {previousResponse} = input;
+
+    const body = {
         key: API_KEY,
     }
 
@@ -65,7 +69,7 @@ async function handlePreviousResponse(requestBody: any, previousResponse: any): 
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(input),
+        body: JSON.stringify(body),
         // redirect: 'follow'
     })
 
@@ -78,13 +82,14 @@ async function handlePreviousResponse(requestBody: any, previousResponse: any): 
     return [200, responseJSON];
 }
 
-async function process(requestBody: any, previousResponse: any): Promise<[number, any]> {
+async function process(input: NIP105ProcessInput): Promise<[number, any]> {
+    const {previousResponse} = input;
 
     if(previousResponse){
-        return handlePreviousResponse(requestBody, previousResponse)
+        return handlePreviousResponse(input)
     }
 
-    return handleFirstResponse(requestBody);
+    return handleFirstResponse(input);
 }
 
 export const stableDiffusion: NIP105Service = {

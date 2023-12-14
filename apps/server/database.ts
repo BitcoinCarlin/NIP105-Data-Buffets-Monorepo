@@ -17,7 +17,7 @@ export interface JobEntry {
   invoiceJSON: string;
   requestJSON: string;
   responseJSON: string;
-  assetFilepath: string;
+  tempFileJSON: string;
   paid: boolean;
   state: JobState;
   message: string;
@@ -25,6 +25,16 @@ export interface JobEntry {
   createdTimestamp: number;
   paidTimestamp: number;
   lastUpdatedTimestamp: number;
+}
+
+export interface TempFileData {
+  name: string;
+  size: number;
+  encoding: string;
+  tempFilePath: string;
+  truncated: boolean;
+  mimetype: string;
+  md5: string;
 }
 
 // ---------------- SECURITY ------------------
@@ -50,7 +60,7 @@ export function setupJobTable(db: Database, table: string) {
         invoiceJSON TEXT,
         requestJSON TEXT,
         responseJSON TEXT,
-        assetFilepath TEXT,
+        tempFileJSON TEXT,
         paid INTEGER,
         state TEXT,
         message TEXT,
@@ -100,7 +110,8 @@ export function createJobEntry(
   price: number,
   tries: number,
   invoice: Invoice,
-  requestBody: any
+  requestBody: any,
+  tempFile: TempFileData | undefined,
 ) {
   return createJobEntryRaw(db, table, {
     paymentHash: invoice.paymentHash,
@@ -110,7 +121,7 @@ export function createJobEntry(
     invoiceJSON: JSON.stringify(invoice),
     requestJSON: JSON.stringify(requestBody),
     responseJSON: "",
-    assetFilepath: "",
+    tempFileJSON: tempFile ? JSON.stringify(tempFile) : "",
     paid: false,
     state: JobState.UNPAID,
     message: "",
@@ -134,7 +145,7 @@ function createJobEntryRaw(db: Database, table: string, job: JobEntry) {
       invoiceJSON,
       requestJSON,
       responseJSON,
-      assetFilepath,
+      tempFileJSON,
       paid,
       state,
       message,
@@ -150,7 +161,7 @@ function createJobEntryRaw(db: Database, table: string, job: JobEntry) {
       $invoiceJSON,
       $requestJSON,
       $responseJSON,
-      $assetFilepath,
+      $tempFileJSON,
       $paid,
       $state,
       $message,
@@ -170,7 +181,7 @@ function createJobEntryRaw(db: Database, table: string, job: JobEntry) {
     $invoiceJSON: job.invoiceJSON,
     $requestJSON: job.requestJSON,
     $responseJSON: job.responseJSON,
-    $assetFilepath: job.assetFilepath,
+    $tempFileJSON: job.tempFileJSON,
     $paid: job.paid ? 1 : 0, // Convert boolean to integer
     $state: job.state,
     $message: job.message,
