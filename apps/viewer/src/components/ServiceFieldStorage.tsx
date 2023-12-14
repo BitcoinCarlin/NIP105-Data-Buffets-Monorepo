@@ -85,7 +85,7 @@ export function ServiceFieldStorage(props: ServiceFieldStorageProps) {
 
   return (
     <div className="border rounded p-4 mt-5">
-      <p className=" font-bold">File Storage</p>
+      <p className=" font-bold">File Storage ( Test Limit of 5kB )</p>
       <div className="mb-4 mt-10">
         {/* Display ChatGPT questions and responses */}
         {responses.map((response, index) => (
