@@ -17,7 +17,7 @@ export async function getPrivateKey(privateKeyPath: string): Promise<string>{
 export async function postServices(pool: SimplePool, privateKey: string, relays: string[], events: NostrEvent[], debug: boolean = false): Promise<void> {
 
     for(const event of events){
-
+        console.log(event);
         // If debug is true, add the `debug` tag to sort out
         event.tags = [
             ...event.tags,
